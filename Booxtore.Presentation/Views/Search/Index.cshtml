@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Search Results";
+    var query = ViewBag.Query as string;
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                @if (!string.IsNullOrEmpty(query))
+                {
+                    <h1>Search Results for "@query"</h1>
+                    <p class="lead">We found several books matching your search.</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-3 mb-4">
+                            <div class="card">
+                                <img src="~/images/product-item1.jpg" class="card-img-top" alt="Book">
+                                <div class="card-body">
+                                    <h5 class="card-title">Sample Book 1</h5>
+                                    <p class="card-text">by Author Name</p>
+                                    <p class="text-primary">$25.00</p>
+                                    <button class="btn btn-outline-dark">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card">
+                                <img src="~/images/product-item2.jpg" class="card-img-top" alt="Book">
+                                <div class="card-body">
+                                    <h5 class="card-title">Sample Book 2</h5>
+                                    <p class="card-text">by Author Name</p>
+                                    <p class="text-primary">$30.00</p>
+                                    <button class="btn btn-outline-dark">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h1>Search</h1>
+                    <p class="lead">Enter your search term to find books in our collection.</p>
+                    
+                    <form method="get" class="mt-4">
+                        <div class="input-group">
+                            <input type="search" class="form-control" name="q" placeholder="Search for books..." required>
+                            <button class="btn btn-dark" type="submit">Search</button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</section>
