@@ -1,0 +1,59 @@
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>Contact Us</h1>
+                <p class="lead">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                
+                <form class="mt-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="firstName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="lastName" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="lastName" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject *</label>
+                        <input type="text" class="form-control" id="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message *</label>
+                        <textarea class="form-control" id="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Send Message</button>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-info">
+                    <h4>Get in Touch</h4>
+                    <p><strong>Address:</strong><br>
+                    123 Book Street<br>
+                    Reading City, RC 12345</p>
+                    
+                    <p><strong>Phone:</strong><br>
+                    <a href="tel:+5511122233344">+55 111 222 333 44</a></p>
+                    
+                    <p><strong>Email:</strong><br>
+                    <a href="mailto:info@bookstore.com">info@bookstore.com</a></p>
+                    
+                    <p><strong>Store Hours:</strong><br>
+                    Monday - Friday: 9:00 AM - 8:00 PM<br>
+                    Saturday: 9:00 AM - 6:00 PM<br>
+                    Sunday: 11:00 AM - 5:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
