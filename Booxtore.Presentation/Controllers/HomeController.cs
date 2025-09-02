@@ -21,7 +21,5 @@ namespace Booxtore.Presentation.Controllers
         {
             return View();
         }
-
-       
     }
 }
