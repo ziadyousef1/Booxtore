@@ -20,4 +20,8 @@
     <Folder Include="Template\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Booxtore.Infrastructure\Booxtore.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

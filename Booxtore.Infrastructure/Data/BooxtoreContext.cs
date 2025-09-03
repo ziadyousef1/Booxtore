@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Booxtore.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Booxtore.Domain.Models;
+namespace Booxtore.Infrastructure.Data;
 
 public partial class BooxtoreContext : DbContext
 {
@@ -37,9 +38,6 @@ public partial class BooxtoreContext : DbContext
 
     public virtual DbSet<UserLibrary> UserLibraries { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=SHAHD;Database=Booxtore;Trusted_Connection=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

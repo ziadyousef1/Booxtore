@@ -19,4 +19,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Booxtore.Application\Booxtore.Application.csproj" />
+    <ProjectReference Include="..\Booxtore.Domain\Booxtore.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
