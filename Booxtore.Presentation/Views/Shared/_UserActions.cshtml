@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Booxtore.Domain.Models.ApplicationUser> SignInManager
+
 <div class="user-items d-flex">
     <ul class="d-flex justify-content-end list-unstyled mb-0">
         <li class="search-item pe-3">
@@ -8,80 +11,57 @@
             </a>
         </li>
         <li class="pe-3">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                <svg class="user">
-                    <use xlink:href="#user"></use>
-                </svg>
-            </a>
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header border-bottom-0">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="tabs-listing">
-                                <nav>
-                                    <div class="nav nav-tabs d-flex justify-content-center" id="nav-tab" role="tablist">
-                                        <button class="nav-link text-capitalize active" id="nav-sign-in-tab" data-bs-toggle="tab"
-                                            data-bs-target="#nav-sign-in" type="button" role="tab" aria-controls="nav-sign-in"
-                                            aria-selected="true">Sign In</button>
-                                        <button class="nav-link text-capitalize" id="nav-register-tab" data-bs-toggle="tab"
-                                            data-bs-target="#nav-register" type="button" role="tab" aria-controls="nav-register"
-                                            aria-selected="false">Register</button>
-                                    </div>
-                                </nav>
-                                <div class="tab-content" id="nav-tabContent">
-                                    <div class="tab-pane fade active show" id="nav-sign-in" role="tabpanel"
-                                        aria-labelledby="nav-sign-in-tab">
-                                        <form asp-controller="Account" asp-action="Login" method="post">
-                                            <div class="form-group py-3">
-                                                <label class="mb-2" for="sign-in">Username or email address *</label>
-                                                <input type="text" minlength="2" name="username" placeholder="Your Username"
-                                                    class="form-control w-100 rounded-3 p-3" required>
-                                            </div>
-                                            <div class="form-group pb-3">
-                                                <label class="mb-2" for="sign-in">Password *</label>
-                                                <input type="password" minlength="2" name="password" placeholder="Your Password"
-                                                    class="form-control w-100 rounded-3 p-3" required>
-                                            </div>
-                                            <label class="py-3">
-                                                <input type="checkbox" name="rememberMe" class="d-inline">
-                                                <span class="label-body">Remember me</span>
-                                                <span class="label-body"><a href="#" class="fw-bold">Forgot Password</a></span>
-                                            </label>
-                                            <button type="submit" name="submit" class="btn btn-dark w-100 my-3">Login</button>
-                                        </form>
-                                    </div>
-                                    <div class="tab-pane fade" id="nav-register" role="tabpanel"
-                                        aria-labelledby="nav-register-tab">
-                                        <form asp-controller="Account" asp-action="Register" method="post">
-                                            <div class="form-group py-3">
-                                                <label class="mb-2" for="register">Your email address *</label>
-                                                <input type="email" minlength="2" name="email" placeholder="Your Email Address"
-                                                    class="form-control w-100 rounded-3 p-3" required>
-                                            </div>
-                                            <div class="form-group pb-3">
-                                                <label class="mb-2" for="sign-in">Password *</label>
-                                                <input type="password" minlength="2" name="password" placeholder="Your Password"
-                                                    class="form-control w-100 rounded-3 p-3" required>
-                                            </div>
-                                            <label class="py-3">
-                                                <input type="checkbox" required="" class="d-inline">
-                                                <span class="label-body">I agree to the <a href="#" class="fw-bold">Privacy
-                                                        Policy</a></span>
-                                            </label>
-                                            <button type="submit" name="submit" class="btn btn-dark w-100 my-3">Register</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button" aria-expanded="false" style="text-decoration: none; color: inherit;">
+                        <svg class="user me-1">
+                            <use xlink:href="#user"></use>
+                        </svg>
+                        <span class="d-none d-md-inline">@User.Identity.Name</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Welcome, @User.Identity.Name!</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i>My Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>My Library</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-shopping-bag me-2"></i>My Orders</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                        <svg class="user">
+                            <use xlink:href="#user"></use>
+                        </svg>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Account</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" asp-controller="Auth" asp-action="Login">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-controller="Auth" asp-action="Register">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            }
         </li>
         <li class="wishlist-dropdown dropdown pe-3">
             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">

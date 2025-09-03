@@ -10,12 +10,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Booxtore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="~/css/auth-login.css" rel="stylesheet">
 </head>
 <body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
 
     <div class="login-container">
         <div class="logo">
-            <h1>Booxtore</h1>
+            <h1><i class="fas fa-book-open"></i> Booxtore</h1>
             <p>Welcome back! Please sign in to your account</p>
         </div>
 
@@ -33,12 +44,14 @@
             <input type="hidden" asp-for="ReturnUrl" />
             
             <div class="form-group">
-                <input asp-for="Email" placeholder="Enter your email" type="email" />
+                <i class="fas fa-envelope form-icon"></i>
+                <input asp-for="Email" class="form-control" placeholder="Enter your email" type="email" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <input asp-for="Password" placeholder="Enter your password" type="password" />
+                <i class="fas fa-lock form-icon"></i>
+                <input asp-for="Password" class="form-control" placeholder="Enter your password" type="password" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
@@ -47,8 +60,9 @@
                 <label asp-for="RememberMe">Remember me</label>
             </div>
 
-            <button type="submit">
-                <span>Sign In</span>
+            <button type="submit" class="btn btn-login">
+                <span class="btn-text">Sign In</span>
+                <div class="loading"></div>
             </button>
 
             <div class="links">
@@ -58,4 +72,35 @@
         </form>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = document.querySelector('.btn-login');
+            btn.classList.add('loading');
+            
+            // Remove loading state after form submission
+            setTimeout(() => {
+                btn.classList.remove('loading');
+            }, 3000);
+        });
+
+        // Add floating animation to form elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0s';
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.form-group, .btn-login').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
