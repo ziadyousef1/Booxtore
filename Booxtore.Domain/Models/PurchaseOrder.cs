@@ -7,7 +7,7 @@ public partial class PurchaseOrder
 {
     public int OrderId { get; set; }
 
-    public int? UserId { get; set; }
+    public string? UserId { get; set; }
 
     public decimal? TotalAmount { get; set; }
 
@@ -21,5 +21,5 @@ public partial class PurchaseOrder
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
-    public virtual User? User { get; set; }
+    public virtual ApplicationUser? User { get; set; }
 }

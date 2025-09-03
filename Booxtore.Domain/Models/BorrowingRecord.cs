@@ -7,7 +7,7 @@ public partial class BorrowingRecord
 {
     public int BorrowId { get; set; }
 
-    public int? UserId { get; set; }
+    public string? UserId { get; set; }
 
     public int? BookId { get; set; }
 
@@ -27,5 +27,5 @@ public partial class BorrowingRecord
 
     public virtual Book? Book { get; set; }
 
-    public virtual User? User { get; set; }
+    public virtual ApplicationUser? User { get; set; }
 }
