@@ -82,6 +82,31 @@
                             </li>
                             @using Microsoft.AspNetCore.Identity
                             @inject SignInManager<Booxtore.Domain.Models.ApplicationUser> SignInManager
+                            @inject UserManager<Booxtore.Domain.Models.ApplicationUser> UserManager
+                            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle me-4" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cog me-1"></i>Admin
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminBooks" asp-action="Index">
+                                            <i class="fas fa-book me-2"></i>Manage Books
+                                        </a></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminUsers" asp-action="Index">
+                                            <i class="fas fa-users me-2"></i>Manage Users
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminBooks" asp-action="Create">
+                                            <i class="fas fa-plus me-2"></i>Add New Book
+                                        </a></li>
+                                    </ul>
+                                </li>
+                            }
                             @if (!SignInManager.IsSignedIn(User))
                             {
                             <li class="nav-item d-lg-none">

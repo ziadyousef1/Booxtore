@@ -1,0 +1,264 @@
+@model Booxtore.Presentation.ViewModels.AdminUsersViewModel
+
+@{
+    ViewData["Title"] = "Manage Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container-fluid">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-users me-1"></i>Users Management
+            </li>
+        </ol>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-primary"><i class="fas fa-users me-2"></i>User Management</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">@Model.TotalUsers</h4>
+                            <p class="mb-0">Total Users</p>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">@Model.ActiveUsers</h4>
+                            <p class="mb-0">Active Users</p>
+                        </div>
+                        <i class="fas fa-user-check fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">@Model.InactiveUsers</h4>
+                            <p class="mb-0">Inactive Users</p>
+                        </div>
+                        <i class="fas fa-user-times fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">@((Model.ActiveUsers * 100.0 / Math.Max(Model.TotalUsers, 1)).ToString("F1"))%</h4>
+                            <p class="mb-0">Activity Rate</p>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Users List</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="get" class="d-flex">
+                                <input type="search" name="searchTerm" value="@Model.SearchTerm" 
+                                       class="form-control me-2" placeholder="Search users..." />
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Users.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Activities</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.Users)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-primary rounded-circle text-white text-center me-3" 
+                                                         style="width: 40px; height: 40px; line-height: 40px;">
+                                                        @(user.FirstName?.First().ToString().ToUpper() ?? "U")
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold">@user.FirstName @user.LastName</div>
+                                                        <small class="text-muted">@user.UserName</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@user.Email</td>
+                                            <td>@(user.PhoneNumber ?? "N/A")</td>
+                                            <td>
+                                                @{
+                                                    var statusClass = user.Status == "Active" ? "bg-success" : "bg-danger";
+                                                }
+                                                <span class="badge @statusClass">@user.Status</span>
+                                            </td>
+                                            <td>@(user.CreatedAt?.ToString("MMM dd, yyyy") ?? "N/A")</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <span class="badge bg-primary" title="Borrowings">
+                                                        <i class="fas fa-handshake me-1"></i>@(user.BorrowingRecords?.Count ?? 0)
+                                                    </span>
+                                                    <span class="badge bg-success" title="Purchases">
+                                                        <i class="fas fa-shopping-cart me-1"></i>@(user.PurchaseOrders?.Count ?? 0)
+                                                    </span>
+                                                    <span class="badge bg-info" title="Reviews">
+                                                        <i class="fas fa-star me-1"></i>@(user.Reviews?.Count ?? 0)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-action="Details" asp-route-id="@user.Id" 
+                                                       class="btn btn-outline-primary" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@user.Id" 
+                                                       class="btn btn-outline-warning" title="Edit User">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    @if (user.Status == "Active")
+                                                    {
+                                                        <button type="button" class="btn btn-outline-danger" 
+                                                                onclick="toggleUserStatus('@user.Id', 'Inactive')" title="Deactivate">
+                                                            <i class="fas fa-user-times"></i>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="button" class="btn btn-outline-success" 
+                                                                onclick="toggleUserStatus('@user.Id', 'Active')" title="Activate">
+                                                            <i class="fas fa-user-check"></i>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (Model.TotalPages > 1)
+                        {
+                            <div class="card-footer">
+                                <nav>
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        @if (Model.Page > 1)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=@(Model.Page - 1)&searchTerm=@Model.SearchTerm">Previous</a>
+                                            </li>
+                                        }
+
+                                        @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                                        {
+                                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                                <a class="page-link" href="?page=@i&searchTerm=@Model.SearchTerm">@i</a>
+                                            </li>
+                                        }
+
+                                        @if (Model.Page < Model.TotalPages)
+                                        {
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=@(Model.Page + 1)&searchTerm=@Model.SearchTerm">Next</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No users found</h5>
+                            @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                            {
+                                <p class="text-muted">No users match your search criteria.</p>
+                                <a href="?" class="btn btn-primary">Clear Search</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleUserStatus(userId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} this user?`)) {
+                fetch(`/AdminUsers/ToggleStatus/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating user status');
+                    }
+                });
+            }
+        }
+    </script>
+}
