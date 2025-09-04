@@ -1,0 +1,481 @@
+@model Booxtore.Presentation.ViewModels.AdminBooksViewModel
+@{
+    ViewData["Title"] = "Books Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container-fluid">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-book me-1"></i>Books Management
+            </li>
+        </ol>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-book me-2 text-primary"></i>Books Management
+                    </h1>
+                    <p class="text-muted mb-0">Manage your bookstore inventory</p>
+                </div>
+                <div>
+                    <a asp-action="Create" class="btn btn-primary btn-lg shadow-sm">
+                        <i class="fas fa-plus me-2"></i>Add New Book
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Books
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalBooks</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-books fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Available Books
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AvailableBooks</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Borrowed Books
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.BorrowedBooks</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-hand-holding fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Categories
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Categories.Count()</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tags fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Search and Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Search & Filter Books
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="searchTerm" class="form-label">Search Books</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                                   value="@Model.SearchTerm" placeholder="Search by title, ISBN, or description...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="categoryFilter" class="form-label">Category</label>
+                        <select class="form-select" id="categoryFilter" name="categoryFilter">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <option value="@category.Value" selected="@(category.Value == Model.CategoryFilter?.ToString())">
+                                    @category.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="authorFilter" class="form-label">Author</label>
+                        <select class="form-select" id="authorFilter" name="authorFilter">
+                            <option value="">All Authors</option>
+                            @foreach (var author in Model.Authors)
+                            {
+                                <option value="@author.Value" selected="@(author.Value == Model.AuthorFilter?.ToString())">
+                                    @author.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="statusFilter" class="form-label">Status</label>
+                        <select class="form-select" id="statusFilter" name="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="Available" selected="@(Model.StatusFilter == "Available")">Available</option>
+                            <option value="Borrowed" selected="@(Model.StatusFilter == "Borrowed")">Borrowed</option>
+                            <option value="Maintenance" selected="@(Model.StatusFilter == "Maintenance")">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-1"></i>Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Books Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list me-2"></i>Books List
+            </h6>
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow">
+                    <div class="dropdown-header">Quick Actions:</div>
+                    <a class="dropdown-item" asp-action="Create">
+                        <i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>Add New Book
+                    </a>
+                    <a class="dropdown-item" asp-action="CreateCategory">
+                        <i class="fas fa-tag fa-sm fa-fw mr-2 text-gray-400"></i>Add Category
+                    </a>
+                    <a class="dropdown-item" asp-action="CreateAuthor">
+                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>Add Author
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Books.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Cover</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Author</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Copies</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model.Books)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                                        {
+                                            <img src="@book.CoverImageUrl" alt="@book.Title" 
+                                                 class="img-thumbnail" style="width: 50px; height: 70px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 70px; border-radius: 4px;">
+                                                <i class="fas fa-book text-muted"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">@book.Title</div>
+                                        @if (!string.IsNullOrEmpty(book.Isbn))
+                                        {
+                                            <small class="text-muted">ISBN: @book.Isbn</small>
+                                        }
+                                    </td>
+                                    <td>@(book.Author?.Name ?? "Unknown")</td>
+                                    <td>
+                                        @if (book.Category != null)
+                                        {
+                                            <span class="badge bg-info">@book.Category.Name</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (book.IsFree == true)
+                                        {
+                                            <span class="badge bg-success">Free</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-primary">$@(book.Price?.ToString("F2") ?? "0.00")</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="text-center">
+                                            <div class="fw-bold">@book.AvailableCopies/@book.TotalCopies</div>
+                                            @{
+                                                var percentage = book.TotalCopies > 0 ? (double)book.AvailableCopies / book.TotalCopies * 100 : 0;
+                                                var progressClass = percentage > 50 ? "bg-success" : percentage > 25 ? "bg-warning" : "bg-danger";
+                                            }
+                                            <div class="progress mt-1" style="height: 4px;">
+                                                <div class="progress-bar @progressClass" style="width: @percentage%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var statusClass = book.Status switch
+                                            {
+                                                "Available" => "bg-success",
+                                                "Borrowed" => "bg-warning",
+                                                "Maintenance" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusClass">@book.Status</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@book.BookId" 
+                                               class="btn btn-sm btn-outline-info" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@book.BookId" 
+                                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="confirmDelete(@book.BookId, '@book.Title')" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Books pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" 
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-categoryFilter="@Model.CategoryFilter"
+                                   asp-route-authorFilter="@Model.AuthorFilter"
+                                   asp-route-statusFilter="@Model.StatusFilter"
+                                   asp-route-page="@(Model.Page - 1)">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                            {
+                                <li class="page-item @(Model.Page == i ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" 
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-categoryFilter="@Model.CategoryFilter"
+                                       asp-route-authorFilter="@Model.AuthorFilter"
+                                       asp-route-statusFilter="@Model.StatusFilter"
+                                       asp-route-page="@i">@i</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" 
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-categoryFilter="@Model.CategoryFilter"
+                                   asp-route-authorFilter="@Model.AuthorFilter"
+                                   asp-route-statusFilter="@Model.StatusFilter"
+                                   asp-route-page="@(Model.Page + 1)">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No books found</h4>
+                    <p class="text-muted">Try adjusting your search criteria or add some books to get started.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Your First Book
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the book <strong id="bookTitle"></strong>?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.shadow {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+    box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2) !important;
+}
+
+.btn-group .btn {
+    margin-right: 0;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.progress {
+    border-radius: 2px;
+}
+
+.img-thumbnail {
+    border-radius: 6px;
+}
+</style>
+
+<script>
+function confirmDelete(bookId, bookTitle) {
+    document.getElementById('bookTitle').textContent = bookTitle;
+    document.getElementById('deleteForm').action = '/AdminBooks/Delete/' + bookId;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+});
+</script>

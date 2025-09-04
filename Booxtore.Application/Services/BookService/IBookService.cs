@@ -8,11 +8,17 @@ namespace Booxtore.Application.Interfaces.Services
         Task<Book> GetBookByIdAsync(int id);
         Task<IEnumerable<Book>> SearchBooksAsync(string searchTerm);
         Task<IEnumerable<Book>> GetBooksByCategoryAsync(int categoryId);
-        Task<IEnumerable<Book>> GetByAuthorAsync(int authorId);
+        Task<IEnumerable<Book>> GetBooksByAuthorAsync(int authorId);
         Task<IEnumerable<Book>> GetFeaturedBooksAsync(int count = 10);
         Task<IEnumerable<Book>> GetPopularBooksAsync(int count = 10);
         Task<Book> CreateBookAsync(Book book);
         Task<Book> UpdateBookAsync(Book book);
         Task<bool> DeleteBookAsync(int id);
+        
+        // Admin specific methods
+        Task<int> GetTotalBooksCountAsync();
+        Task<int> GetAvailableBooksCountAsync();
+        Task<int> GetBorrowedBooksCountAsync();
+        Task<IEnumerable<Book>> GetBooksByStatusAsync(string status);
     }
 }

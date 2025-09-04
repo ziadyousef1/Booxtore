@@ -35,7 +35,9 @@ namespace Booxtore.Infrastructure.Extensions
             .AddDefaultTokenProviders();
 
             services.AddScoped<IBookRepository, BookRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();   
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }

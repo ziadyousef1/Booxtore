@@ -33,7 +33,7 @@ namespace Booxtore.Application.Services.BookService
             return await _bookRepository.GetByCategoryAsync(categoryId);
         }
 
-        public async Task<IEnumerable<Book>> GetByAuthorAsync(int authorId)
+        public async Task<IEnumerable<Book>> GetBooksByAuthorAsync(int authorId)
         {
             return await _bookRepository.GetByAuthorAsync(authorId);
         }
@@ -77,6 +77,31 @@ namespace Booxtore.Application.Services.BookService
                 return false;
 
             return await _bookRepository.DeleteAsync(id);
+        }
+
+        // Admin specific methods
+        public async Task<int> GetTotalBooksCountAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count();
+        }
+
+        public async Task<int> GetAvailableBooksCountAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count(b => b.Status == "Available");
+        }
+
+        public async Task<int> GetBorrowedBooksCountAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count(b => b.Status == "Borrowed");
+        }
+
+        public async Task<IEnumerable<Book>> GetBooksByStatusAsync(string status)
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Where(b => b.Status == status);
         }
     }
 }
