@@ -140,19 +140,43 @@
                                                 </span>
                                             </div>
                                             <div class="d-grid gap-1">
-                                                @if (book.IsAvailableForPurchase == true)
+                                                @if (book.IsFree == true)
                                                 {
-                                                    <button type="button" class="btn btn-primary btn-sm py-1 px-2 add-to-cart-btn" 
-                                                            data-book-id="@book.BookId" style="font-size: 0.75rem;">
-                                                        <i class="fas fa-shopping-cart me-1"></i>Buy
-                                                    </button>
+                                                    <!-- FREE BOOKS - Only Borrow/Read functionality -->
+                                                    @if (book.IsAvailableForBorrow == true)
+                                                    {
+                                                        @if (book.IsBorrowedByCurrentUser)
+                                                        {
+                                                            <a href="@Url.Action("Read", new { id = book.BookId })" 
+                                                               class="btn btn-success btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                                                                <i class="fas fa-book-open me-1"></i>Continue Reading
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 borrow-book-btn" 
+                                                                    data-book-id="@book.BookId" style="font-size: 0.75rem;">
+                                                                <i class="fas fa-book-reader me-1"></i>Borrow
+                                                            </button>
+                                                        }
+                                                    }
                                                 }
-                                                @if (book.IsAvailableForBorrow == true)
+                                                else
                                                 {
-                                                    <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 borrow-book-btn" 
-                                                            data-book-id="@book.BookId" style="font-size: 0.75rem;">
-                                                        <i class="fas fa-book-reader me-1"></i>Borrow
-                                                    </button>
+                                                    <!-- PAID BOOKS - Only Purchase functionality -->
+                                                    @if (book.IsAvailableForPurchase == true)
+                                                    {
+                                                        <div class="d-flex gap-1">
+                                                            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 add-to-cart-btn flex-fill" 
+                                                                    data-book-id="@book.BookId" style="font-size: 0.65rem;">
+                                                                <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                                            </button>
+                                                            <button type="button" class="btn btn-primary btn-sm py-1 px-2 buy-now-btn flex-fill" 
+                                                                    data-book-id="@book.BookId" style="font-size: 0.65rem;">
+                                                                <i class="fas fa-money-bill-wave me-1"></i>Buy Now
+                                                            </button>
+                                                        </div>
+                                                    }
                                                 }
                                             </div>
                                         </div>
@@ -220,19 +244,179 @@
 </section>
 
 @section Scripts {
+
+    
+    <!-- Toast Container for notifications -->
+    <div id="toast-container" class="toast-container"></div>
+    
     <script>
+        // Check if books are already in cart when page loads
+        $(document).ready(function() {
+            $('.add-to-cart-btn').each(function() {
+                var bookId = $(this).data('book-id');
+                checkIfBookInCart(bookId, $(this));
+            });
+        });
+
+        function checkIfBookInCart(bookId, button) {
+            $.get('@Url.Action("IsBookInCart", "Cart")', { bookId: bookId })
+                .done(function(response) {
+                    if (response.success && response.isInCart) {
+                        updateAddToCartButton(button, true);
+                    }
+                })
+                .fail(function() {
+                    // If check fails, assume not in cart
+                    updateAddToCartButton(button, false);
+                });
+        }
+
+        function updateAddToCartButton(button, isInCart) {
+            if (isInCart) {
+                button
+                    .prop('disabled', true)
+                    .removeClass('btn-outline-secondary')
+                    .addClass('btn-success')
+                    .html('<i class="fas fa-check me-1"></i>In Cart')
+                    .off('click'); // Remove click handler
+            } else {
+                button
+                    .prop('disabled', false)
+                    .removeClass('btn-success')
+                    .addClass('btn-outline-secondary')
+                    .html('<i class="fas fa-shopping-cart me-1"></i>Add to Cart');
+            }
+        }
+
         // Add to cart functionality
         $('.add-to-cart-btn').click(function() {
             var bookId = $(this).data('book-id');
-            // TODO: Implement add to cart functionality
-            alert('Add to cart functionality will be implemented');
+            var btn = $(this);
+            
+            // Disable button to prevent multiple clicks
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin me-1"></i> Adding...');
+            
+            $.post('@Url.Action("AddToCart", "Cart")', { 
+                bookId: bookId, 
+                quantity: 1 
+            })
+            .done(function(response) {
+                if (response.success) {
+                    showSuccessToast(response.message, 'Added to Cart!');
+                    
+                    // Update button to show it's now in cart
+                    updateAddToCartButton(btn, true);
+                    
+                    // Update cart count in navigation if exists
+                    var cartCountElement = $('.cart-count');
+                    if (cartCountElement.length > 0 && response.cartCount) {
+                        cartCountElement.text(response.cartCount);
+                        cartCountElement.show();
+                    }
+                } else {
+                    showErrorToast(response.message, 'Error');
+                    // Re-enable button on error
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-shopping-cart me-1"></i>Add to Cart');
+                }
+            })
+            .fail(function() {
+                showErrorToast('An error occurred. Please try again.', 'Connection Error');
+                // Re-enable button on error
+                btn.prop('disabled', false);
+                btn.html('<i class="fas fa-shopping-cart me-1"></i>Add to Cart');
+            });
+        });
+
+        // Buy Now functionality - redirect directly to cart
+        $('.buy-now-btn').click(function() {
+            // Redirect directly to cart page
+            window.location.href = '@Url.Action("Index", "Cart")';
         });
 
         // Borrow book functionality
         $('.borrow-book-btn').click(function() {
             var bookId = $(this).data('book-id');
-            // TODO: Implement borrow book functionality
-            alert('Borrow book functionality will be implemented');
+            var btn = $(this);
+            
+            // Disable button to prevent multiple clicks
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin me-1"></i> Processing...');
+            
+            $.post('@Url.Action("Borrow", "Shop")', { id: bookId })
+                .done(function(response) {
+                    if (response.success) {
+                        showSuccessToast(response.message, 'Book Borrowed Successfully!');
+                        
+                        // Change button to "Continue Reading" after successful borrow
+                        btn.removeClass('btn-outline-primary borrow-book-btn')
+                           .addClass('btn-success')
+                           .prop('disabled', false)
+                           .off('click') // Remove borrow click handler
+                           .on('click', function() {
+                               // Redirect to book details page for reading
+                               window.location.href = '@Url.Action("Details", "Shop")/' + bookId;
+                           })
+                           .html('<i class="fas fa-book-open me-1"></i>Read Now');
+                        
+                        // If there's a read URL for free books, offer to read now
+                        if (response.readUrl) {
+                            setTimeout(function() {
+                                showInfoToast('You can now read this book online! <a href="' + response.readUrl + '" class="btn btn-sm btn-outline-light ms-2"><i class="fas fa-book-open me-1"></i>Read Now</a>', 'Ready to Read');
+                            }, 1500);
+                        }
+                    } else {
+                        showErrorToast(response.message, 'Borrowing Failed');
+                        // Re-enable button on failure
+                        btn.prop('disabled', false);
+                        btn.html('<i class="fas fa-book-reader me-1"></i>Borrow');
+                    }
+                })
+                .fail(function() {
+                    showErrorToast('An error occurred. Please try again.', 'Connection Error');
+                    // Re-enable button on failure
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-book-reader me-1"></i>Borrow');
+                });
         });
+
+        // Enhanced toast notification functions
+        function showSuccessToast(message, title = 'Success') {
+            showToast(title, message, 'success');
+        }
+
+        function showErrorToast(message, title = 'Error') {
+            showToast(title, message, 'danger');
+        }
+
+        function showInfoToast(message, title = 'Info') {
+            showToast(title, message, 'info');
+        }
+
+        function showToast(title, message, type) {
+            var toastId = 'toast-' + Date.now();
+            var toast = $(`
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <strong>${title}:</strong> ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `);
+            
+            $('#toast-container').append(toast);
+            
+            // Initialize and show the toast
+            var bsToast = new bootstrap.Toast(toast[0]);
+            bsToast.show();
+            
+            // Remove toast element after it's hidden
+            toast.on('hidden.bs.toast', function() {
+                $(this).remove();
+            });
+        }
     </script>
 }

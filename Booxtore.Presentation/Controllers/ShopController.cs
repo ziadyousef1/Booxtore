@@ -62,6 +62,20 @@ namespace Booxtore.Presentation.Controllers
                 .Take(pageSize)
                 .ToList();
 
+            // Check if current user has borrowed any of these books
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    foreach (var book in pagedBooks)
+                    {
+                        var activeBorrowing = await _borrowingRecordRepository.GetActiveByUserAndBookAsync(user.Id, book.BookId);
+                        book.IsBorrowedByCurrentUser = activeBorrowing != null;
+                    }
+                }
+            }
+
             var viewModel = new ShopViewModel
             {
                 Books = pagedBooks,
@@ -101,6 +115,14 @@ namespace Booxtore.Presentation.Controllers
                 if (user != null)
                 {
                     currentBorrowing = await _borrowingRecordRepository.GetActiveByUserAndBookAsync(user.Id, book.BookId);
+                    book.IsBorrowedByCurrentUser = currentBorrowing != null;
+                    
+                    // Also check for related books
+                    foreach (var relatedBook in relatedBooks)
+                    {
+                        var relatedBorrowing = await _borrowingRecordRepository.GetActiveByUserAndBookAsync(user.Id, relatedBook.BookId);
+                        relatedBook.IsBorrowedByCurrentUser = relatedBorrowing != null;
+                    }
                 }
             }
 

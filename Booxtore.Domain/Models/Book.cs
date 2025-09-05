@@ -49,6 +49,9 @@ public partial class Book
 
     public virtual Category? Category { get; set; }
 
+    // Property to check if current user has borrowed this book
+    public bool IsBorrowedByCurrentUser { get; set; } = false;
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<ReadingSession> ReadingSessions { get; set; } = new List<ReadingSession>();

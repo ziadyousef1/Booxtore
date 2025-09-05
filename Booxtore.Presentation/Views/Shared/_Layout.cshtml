@@ -199,7 +199,24 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
     <script type="text/javascript" src="~/js/script.js" asp-append-version="true"></script>
     
- 
+    <!-- Cart count loader -->
+    <script>
+        $(document).ready(function() {
+            // Load cart count on page load
+            $.get('@Url.Action("GetCartCount", "Cart")')
+                .done(function(response) {
+                    if (response.count > 0) {
+                        $('.cart-count').text(response.count).show();
+                    } else {
+                        $('.cart-count').hide();
+                    }
+                })
+                .fail(function() {
+                    // Silently fail - cart count is not critical
+                    $('.cart-count').hide();
+                });
+        });
+    </script>
 
     <ejs-scripts></ejs-scripts>
 
