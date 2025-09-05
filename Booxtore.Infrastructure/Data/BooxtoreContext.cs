@@ -40,7 +40,6 @@ public partial class BooxtoreContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
         
-        // Configure Author
         modelBuilder.Entity<Author>(entity =>
         {
             entity.HasKey(e => e.AuthorId);
@@ -48,7 +47,6 @@ public partial class BooxtoreContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Biography).HasMaxLength(1000);
         });
 
-        // Configure Book
         modelBuilder.Entity<Book>(entity =>
         {
             entity.HasKey(e => e.BookId);
@@ -68,7 +66,6 @@ public partial class BooxtoreContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.CategoryId);
         });
 
-        // Configure BorrowingRecord
         modelBuilder.Entity<BorrowingRecord>(entity =>
         {
             entity.HasKey(e => e.BorrowId);

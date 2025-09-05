@@ -1,0 +1,151 @@
+@model Booxtore.Domain.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-book me-2"></i>Book Details</h4>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-light btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+                            {
+                                <img src="@Model.CoverImageUrl" alt="@Model.Title" class="img-fluid rounded shadow" />
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded p-5">
+                                    <i class="fas fa-book fa-5x text-muted"></i>
+                                    <p class="text-muted mt-3">No Cover Image</p>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.PdfFileUrl))
+                            {
+                                <div class="mt-3">
+                                    <a href="@Model.PdfFileUrl" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-file-pdf me-2"></i>View PDF
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <h2 class="text-primary">@Model.Title</h2>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="fw-bold">Author:</td>
+                                            <td>@(Model.Author?.Name ?? "N/A")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Category:</td>
+                                            <td>@(Model.Category?.Name ?? "N/A")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">ISBN:</td>
+                                            <td>@(Model.Isbn ?? "N/A")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Pages:</td>
+                                            <td>@(Model.Pages?.ToString() ?? "N/A")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Publication Date:</td>
+                                            <td>@(Model.PublicationDate?.ToString("MMM dd, yyyy") ?? "N/A")</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="fw-bold">Price:</td>
+                                            <td>
+                                                @if (Model.IsFree == true)
+                                                {
+                                                    <span class="badge bg-success">FREE</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-success fw-bold">$@(Model.Price?.ToString("F2") ?? "0.00")</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Status:</td>
+                                            <td>
+                                                @{
+                                                    var statusClass = Model.Status switch
+                                                    {
+                                                        "Available" => "bg-success",
+                                                        "Out of Stock" => "bg-danger",
+                                                        "Coming Soon" => "bg-warning",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @statusClass">@Model.Status</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Total Copies:</td>
+                                            <td>@(Model.TotalCopies?.ToString() ?? "0")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Available Copies:</td>
+                                            <td>@(Model.AvailableCopies?.ToString() ?? "0")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Created:</td>
+                                            <td>@(Model.CreatedAt?.ToString("MMM dd, yyyy") ?? "N/A")</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h5 class="text-primary">Availability</h5>
+                                    <div class="d-flex gap-3">
+                                        @if (Model.IsAvailableForBorrow == true)
+                                        {
+                                            <span class="badge bg-primary"><i class="fas fa-handshake me-1"></i>Borrowable</span>
+                                        }
+                                        @if (Model.IsAvailableForPurchase == true)
+                                        {
+                                            <span class="badge bg-info"><i class="fas fa-shopping-cart me-1"></i>Purchasable</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <div class="mb-3">
+                                    <h5 class="text-primary">Description</h5>
+                                    <p class="text-muted">@Model.Description</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

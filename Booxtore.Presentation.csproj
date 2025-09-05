@@ -18,6 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <Folder Include="Template\" />
+    <PackageReference Include="Syncfusion.EJ2.MVC5" Version="30.2.7" />
   </ItemGroup>
 
 </Project>

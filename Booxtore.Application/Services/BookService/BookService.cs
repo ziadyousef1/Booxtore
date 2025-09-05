@@ -33,7 +33,7 @@ namespace Booxtore.Application.Services.BookService
             return await _bookRepository.GetByCategoryAsync(categoryId);
         }
 
-        public async Task<IEnumerable<Book>> GetByAuthorAsync(int authorId)
+        public async Task<IEnumerable<Book>> GetBooksByAuthorAsync(int authorId)
         {
             return await _bookRepository.GetByAuthorAsync(authorId);
         }
@@ -48,9 +48,16 @@ namespace Booxtore.Application.Services.BookService
             return await _bookRepository.GetPopularAsync(count);
         }
 
+        public async Task<IEnumerable<Book>> GetLatestBooksAsync(int count = 10)
+        {
+            var allBooks = await _bookRepository.GetAllAsync();
+            return allBooks.OrderByDescending(b => b.CreatedAt)
+                          .Take(count)
+                          .ToList();
+        }
+
         public async Task<Book> CreateBookAsync(Book book)
         {
-            // Add business logic validation here
             if (string.IsNullOrWhiteSpace(book.Title))
                 throw new ArgumentException("Book title is required.");
 
@@ -62,7 +69,6 @@ namespace Booxtore.Application.Services.BookService
 
         public async Task<Book> UpdateBookAsync(Book book)
         {
-            // Add business logic validation here
             var existingBook = await _bookRepository.GetByIdAsync(book.BookId);
             if (existingBook == null)
                 throw new ArgumentException("Book not found.");
@@ -77,6 +83,29 @@ namespace Booxtore.Application.Services.BookService
                 return false;
 
             return await _bookRepository.DeleteAsync(id);
+        }
+
+        
+        public async Task<int> GetTotalBooksCountAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count();
+        }        public async Task<int> GetAvailableBooksCountAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count(b => b.Status == "Available");
+        }
+
+        public async Task<int> GetBorrowedBooksCountAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count(b => b.Status == "Borrowed");
+        }
+
+        public async Task<IEnumerable<Book>> GetBooksByStatusAsync(string status)
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Where(b => b.Status == status);
         }
     }
 }

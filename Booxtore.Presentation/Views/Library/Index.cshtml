@@ -1,0 +1,300 @@
+@model Booxtore.Presentation.ViewModels.LibraryViewModel
+@{
+    ViewData["Title"] = "My Library";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary fw-bold">
+                    <i class="fas fa-book-open me-2"></i>My Library
+                </h2>
+                <a href="@Url.Action("Index", "Shop")" class="btn btn-outline-primary">
+                    <i class="fas fa-shopping-cart me-1"></i>Browse More Books
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="row">
+        <div class="col-12">
+            <ul class="nav nav-tabs mb-4" id="libraryTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                        <i class="fas fa-book-reader me-1"></i>
+                        Currently Borrowed (@Model.ActiveBorrowings.Count)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="overdue-tab" data-bs-toggle="tab" data-bs-target="#overdue" type="button" role="tab">
+                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                        Overdue (@Model.OverdueBorrowings.Count)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Reading History (@Model.CompletedBorrowings.Count)
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="libraryTabContent">
+        <!-- Active Borrowings -->
+        <div class="tab-pane fade show active" id="active" role="tabpanel">
+            @if (Model.ActiveBorrowings.Any())
+            {
+                <div class="row">
+                    @foreach (var borrowing in Model.ActiveBorrowings)
+                    {
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <img src="@(!string.IsNullOrEmpty(borrowing.Book.CoverImageUrl) ? borrowing.Book.CoverImageUrl : "/images/default-book.jpg")" 
+                                                 class="img-fluid rounded shadow-sm" alt="@borrowing.Book.Title" style="height: 120px; object-fit: cover;">
+                                        </div>
+                                        <div class="col-8">
+                                            <h6 class="card-title fw-bold text-primary mb-2">@borrowing.Book.Title</h6>
+                                            <p class="text-primary small mb-1">
+                                                <i class="fas fa-user me-1"></i>@(borrowing.Book.Author?.Name ?? "Unknown Author")
+                                            </p>
+                                            <p class="text-primary small mb-2">
+                                                <i class="fas fa-calendar me-1"></i>Due: @borrowing.DueDate?.ToString("MMM dd, yyyy")
+                                            </p>
+                                            @if (borrowing.DueDate < DateTime.Now)
+                                            {
+                                                <span class="badge bg-danger mb-2">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                                                </span>
+                                            }
+                                            else if (borrowing.DueDate <= DateTime.Now.AddDays(3))
+                                            {
+                                                <span class="badge bg-warning mb-2">
+                                                    <i class="fas fa-clock me-1"></i>Due Soon
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 mt-3">
+                                        @if (borrowing.Book.IsFree == true && !string.IsNullOrEmpty(borrowing.Book.PdfFileUrl))
+                                        {
+                                            <a href="@Url.Action("Read", "Shop", new { id = borrowing.Book.BookId })" 
+                                               class="btn btn-primary btn-sm flex-fill">
+                                                <i class="fas fa-book-open me-1"></i>Read
+                                            </a>
+                                        }
+                                        <button class="btn btn-outline-primary btn-sm flex-fill renew-btn" 
+                                                data-borrowing-id="@borrowing.BorrowId">
+                                            <i class="fas fa-redo me-1"></i>Renew
+                                        </button>
+                                        <button class="btn btn-success btn-sm flex-fill return-btn" 
+                                                data-borrowing-id="@borrowing.BorrowId">
+                                            <i class="fas fa-check me-1"></i>Return
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                    <h4 class="text-primary">No books currently borrowed</h4>
+                    <p class="text-primary">Start exploring our collection and borrow your first book!</p>
+                    <a href="@Url.Action("Index", "Shop")" class="btn btn-primary">Browse Books</a>
+                </div>
+            }
+        </div>
+
+        <!-- Overdue Books -->
+        <div class="tab-pane fade" id="overdue" role="tabpanel">
+            @if (Model.OverdueBorrowings.Any())
+            {
+                <div class="warning-card p-4 border border-warning rounded-3 bg-light mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="warning-icon me-3">
+                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" 
+                                 style="width: 54px; height: 54px;">
+                                <i class="fas fa-exclamation-triangle text-white fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="mb-1 text-warning fw-bold">Attention Required!</h5>
+                            <p class="mb-0 text-primary">You have overdue books. Please return them as soon as possible to avoid late fees.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    @foreach (var borrowing in Model.OverdueBorrowings)
+                    {
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 shadow-sm border-warning">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <img src="@(!string.IsNullOrEmpty(borrowing.Book.CoverImageUrl) ? borrowing.Book.CoverImageUrl : "/images/default-book.jpg")" 
+                                                 class="img-fluid rounded shadow-sm" alt="@borrowing.Book.Title" style="height: 120px; object-fit: cover;">
+                                        </div>
+                                        <div class="col-8">
+                                            <h6 class="card-title fw-bold text-primary mb-2">@borrowing.Book.Title</h6>
+                                            <p class="text-primary small mb-1">
+                                                <i class="fas fa-user me-1"></i>@(borrowing.Book.Author?.Name ?? "Unknown Author")
+                                            </p>
+                                            <p class="text-danger small mb-2">
+                                                <i class="fas fa-calendar me-1"></i>Was due: @borrowing.DueDate?.ToString("MMM dd, yyyy")
+                                            </p>
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                @(borrowing.DueDate.HasValue ? (DateTime.Now - borrowing.DueDate.Value).Days : 0) days overdue
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 mt-3">
+                                        <button class="btn btn-warning btn-sm flex-fill return-btn" 
+                                                data-borrowing-id="@borrowing.BorrowId">
+                                            <i class="fas fa-check me-1"></i>Return Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h4 class="text-primary">No overdue books</h4>
+                    <p class="text-primary">Great job keeping up with your reading schedule!</p>
+                </div>
+            }
+        </div>
+
+        <!-- Reading History -->
+        <div class="tab-pane fade" id="completed" role="tabpanel">
+            @if (Model.CompletedBorrowings.Any())
+            {
+                <div class="row">
+                    @foreach (var borrowing in Model.CompletedBorrowings)
+                    {
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <img src="@(!string.IsNullOrEmpty(borrowing.Book.CoverImageUrl) ? borrowing.Book.CoverImageUrl : "/images/default-book.jpg")" 
+                                                 class="img-fluid rounded shadow-sm" alt="@borrowing.Book.Title" style="height: 120px; object-fit: cover;">
+                                        </div>
+                                        <div class="col-8">
+                                            <h6 class="card-title fw-bold text-primary mb-2">@borrowing.Book.Title</h6>
+                                            <p class="text-primary small mb-1">
+                                                <i class="fas fa-user me-1"></i>@(borrowing.Book.Author?.Name ?? "Unknown Author")
+                                            </p>
+                                            <p class="text-primary small mb-1">
+                                                <i class="fas fa-calendar me-1"></i>Borrowed: @borrowing.BorrowDate?.ToString("MMM dd, yyyy")
+                                            </p>
+                                            <p class="text-success small mb-2">
+                                                <i class="fas fa-check me-1"></i>Returned: @borrowing.ReturnDate?.ToString("MMM dd, yyyy")
+                                            </p>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Completed
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 mt-3">
+                                        <a href="@Url.Action("Details", "Shop", new { id = borrowing.Book.BookId })" 
+                                           class="btn btn-outline-primary btn-sm flex-fill">
+                                            <i class="fas fa-info-circle me-1"></i>View Details
+                                        </a>
+                                        @if (borrowing.Book.IsFree == true && !string.IsNullOrEmpty(borrowing.Book.PdfFileUrl))
+                                        {
+                                            <a href="@Url.Action("Read", "Shop", new { id = borrowing.Book.BookId })" 
+                                               class="btn btn-primary btn-sm flex-fill">
+                                                <i class="fas fa-book-open me-1"></i>Read Again
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                    <h4 class="text-primary">No reading history yet</h4>
+                    <p class="text-primary">Your completed books will appear here once you return them.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle return button click
+            $('.return-btn').click(function() {
+                const borrowingId = $(this).data('borrowing-id');
+                const button = $(this);
+                
+                if (confirm('Are you sure you want to return this book?')) {
+                    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Returning...');
+                    
+                    $.post('@Url.Action("Return", "Library")', { borrowingRecordId: borrowingId })
+                        .done(function(response) {
+                            if (response.success) {
+                                showSuccessToast(response.message, 'Book Returned!');
+                                location.reload();
+                            } else {
+                                showErrorToast(response.message, 'Return Failed');
+                                button.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Return');
+                            }
+                        })
+                        .fail(function() {
+                            showErrorToast('An error occurred while returning the book.', 'Connection Error');
+                            button.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Return');
+                        });
+                }
+            });
+
+            // Handle renew button click
+            $('.renew-btn').click(function() {
+                const borrowingId = $(this).data('borrowing-id');
+                const button = $(this);
+                
+                if (confirm('Are you sure you want to renew this book for another 14 days?')) {
+                    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Renewing...');
+                    
+                    $.post('@Url.Action("Renew", "Library")', { borrowingRecordId: borrowingId })
+                        .done(function(response) {
+                            if (response.success) {
+                                showSuccessToast(response.message, 'Book Renewed!');
+                                location.reload();
+                            } else {
+                                showErrorToast(response.message, 'Renewal Failed');
+                                button.prop('disabled', false).html('<i class="fas fa-redo me-1"></i>Renew');
+                            }
+                        })
+                        .fail(function() {
+                            showErrorToast('An error occurred while renewing the book.', 'Connection Error');
+                            button.prop('disabled', false).html('<i class="fas fa-redo me-1"></i>Renew');
+                        });
+                }
+            });
+        });
+    </script>
+}

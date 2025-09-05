@@ -37,7 +37,6 @@ namespace Booxtore.Application.Services.CategoryService
 
         public async Task<Category> CreateCategoryAsync(Category category)
         {
-            // Add business logic validation here
             if (string.IsNullOrWhiteSpace(category.Name))
                 throw new ArgumentException("Category name is required.");
 
@@ -50,7 +49,6 @@ namespace Booxtore.Application.Services.CategoryService
 
         public async Task<Category> UpdateCategoryAsync(Category category)
         {
-            // Add business logic validation here
             var existingCategory = await _categoryRepository.GetByIdAsync(category.CategoryId);
             if (existingCategory == null)
                 throw new ArgumentException("Category not found.");
@@ -60,7 +58,6 @@ namespace Booxtore.Application.Services.CategoryService
 
         public async Task<bool> DeleteCategoryAsync(int id)
         {
-            // Check if category has associated books
             var booksInCategory = await _bookRepository.GetByCategoryAsync(id);
             if (booksInCategory.Any())
                 throw new InvalidOperationException("Cannot delete category that contains books.");

@@ -1,5 +1,7 @@
 ﻿<!DOCTYPE html>
-<html>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="~/style.css" asp-append-version="true">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />tml>
 <head>
     <title>@ViewData["Title"] - Bookly Bookstore</title>
     <meta charset="utf-8">
@@ -16,10 +18,21 @@
     <link rel="stylesheet" type="text/css" href="~/style.css" asp-append-version="true">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/29.1.33/fluent.css" />
+            <script src="https://cdn.syncfusion.com/ej2/29.1.33/dist/ej2.min.js"></script>
+    
+    @await RenderSectionAsync("Styles", required: false)
+
 </head>
 <body>
+    <!-- Bootstrap Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11055;">
+        <!-- Toast notifications will be inserted here -->
+    </div>
+
     @Html.Partial("_SvgIcons")
     @Html.Partial("_Preloader")
     @Html.Partial("_SearchPopup")
@@ -81,7 +94,33 @@
                                 <a class="nav-link me-4" asp-area="" asp-controller="Contact" asp-action="Index">Contact</a>
                             </li>
                             @using Microsoft.AspNetCore.Identity
+@using Syncfusion.EJ2
                             @inject SignInManager<Booxtore.Domain.Models.ApplicationUser> SignInManager
+                            @inject UserManager<Booxtore.Domain.Models.ApplicationUser> UserManager
+                            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle me-4" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cog me-1"></i>Admin
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminBooks" asp-action="Index">
+                                            <i class="fas fa-book me-2"></i>Manage Books
+                                        </a></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminUsers" asp-action="Index">
+                                            <i class="fas fa-users me-2"></i>Manage Users
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminBooks" asp-action="Create">
+                                            <i class="fas fa-plus me-2"></i>Add New Book
+                                        </a></li>
+                                    </ul>
+                                </li>
+                            }
                             @if (!SignInManager.IsSignedIn(User))
                             {
                             <li class="nav-item d-lg-none">
@@ -107,8 +146,63 @@
     <script src="~/js/jquery-1.11.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap Toast Helper Functions -->
+    <script>
+        function showSuccessToast(title, message) {
+            showToast('success', title, message, 'fas fa-check-circle', 'text-success', 'bg-success');
+        }
+
+        function showErrorToast(title, message) {
+            showToast('danger', title, message, 'fas fa-exclamation-triangle', 'text-danger', 'bg-danger');
+        }
+
+        function showWarningToast(title, message) {
+            showToast('warning', title, message, 'fas fa-exclamation-circle', 'text-warning', 'bg-warning');
+        }
+
+        function showInfoToast(title, message) {
+            showToast('info', title, message, 'fas fa-info-circle', 'text-info', 'bg-info');
+        }
+
+        function showToast(type, title, message, iconClass, textClass, bgClass) {
+            const toastId = 'toast-' + Date.now();
+            const toastHtml = `
+                <div class="toast align-items-center border-0 shadow-lg" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center py-3 px-3">
+                            <div class="rounded-circle ${bgClass} bg-opacity-10 p-2 me-3">
+                                <i class="${iconClass} ${textClass}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold ${textClass} mb-1">${title}</div>
+                                <div class="text-dark small">${message}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            $('.toast-container').append(toastHtml);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Remove toast from DOM after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                toastElement.remove();
+            });
+        }
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
     <script type="text/javascript" src="~/js/script.js" asp-append-version="true"></script>
+    
+ 
+
+    <ejs-scripts></ejs-scripts>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

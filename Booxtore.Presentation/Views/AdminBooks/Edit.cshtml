@@ -1,0 +1,199 @@
+@model Booxtore.Presentation.ViewModels.EditBookViewModel
+
+@{
+    ViewData["Title"] = "Edit Book";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container-fluid">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-controller="AdminBooks" asp-action="Index" class="text-decoration-none">
+                    <i class="fas fa-book me-1"></i>Books Management
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-edit me-1"></i>Edit Book
+            </li>
+        </ol>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Book</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input asp-for="BookId" type="hidden" />
+                        <input asp-for="CoverImageUrl" type="hidden" />
+                        <input asp-for="PdfFileUrl" type="hidden" />
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Title" class="form-label fw-bold">Title *</label>
+                                        <input asp-for="Title" class="form-control" required />
+                                        <span asp-validation-for="Title" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Isbn" class="form-label fw-bold">ISBN</label>
+                                        <input asp-for="Isbn" class="form-control" />
+                                        <span asp-validation-for="Isbn" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AuthorId" class="form-label fw-bold">Author</label>
+                                        <select asp-for="AuthorId" asp-items="Model.Authors" class="form-select">
+                                            <option value="">Select Author</option>
+                                        </select>
+                                        <span asp-validation-for="AuthorId" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+                                        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                                            <option value="">Select Category</option>
+                                        </select>
+                                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Description" class="form-label fw-bold">Description</label>
+                                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="Price" class="form-label fw-bold">Price ($)</label>
+                                        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                                        <span asp-validation-for="Price" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="Pages" class="form-label fw-bold">Pages</label>
+                                        <input asp-for="Pages" type="number" class="form-control" />
+                                        <span asp-validation-for="Pages" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="PublicationDate" class="form-label fw-bold">Publication Date</label>
+                                        <input asp-for="PublicationDate" type="date" class="form-control" />
+                                        <span asp-validation-for="PublicationDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="TotalCopies" class="form-label fw-bold">Total Copies</label>
+                                        <input asp-for="TotalCopies" type="number" class="form-control" />
+                                        <span asp-validation-for="TotalCopies" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AvailableCopies" class="form-label fw-bold">Available Copies</label>
+                                        <input asp-for="AvailableCopies" type="number" class="form-control" />
+                                        <span asp-validation-for="AvailableCopies" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Current Files & Settings</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+                                        {
+                                            <div class="mb-3 text-center">
+                                                <img src="@Model.CoverImageUrl" alt="Current Cover" class="img-thumbnail" width="150" />
+                                                <p class="small text-primary fs-6 mt-1">Current Cover Image</p>
+                                            </div>
+                                        }
+
+                                        <div class="mb-3">
+                                            <label asp-for="Status" class="form-label fw-bold">Status</label>
+                                            <select asp-for="Status" class="form-select">
+                                                <option value="Available">Available</option>
+                                                <option value="Out of Stock">Out of Stock</option>
+                                                <option value="Coming Soon">Coming Soon</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input asp-for="IsFree" class="form-check-input" type="checkbox" />
+                                            <label asp-for="IsFree" class="form-check-label">Free Book</label>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input asp-for="IsAvailableForBorrow" class="form-check-input" type="checkbox" />
+                                            <label asp-for="IsAvailableForBorrow" class="form-check-label">Available for Borrow</label>
+                                        </div>
+
+                                        <div class="form-check mb-3">
+                                            <input asp-for="IsAvailableForPurchase" class="form-check-input" type="checkbox" />
+                                            <label asp-for="IsAvailableForPurchase" class="form-check-label">Available for Purchase</label>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label asp-for="CoverImage" class="form-label fw-bold">New Cover Image</label>
+                                            <input asp-for="CoverImage" type="file" class="form-control" accept="image/*" />
+                                            <small class="text-primary fs-6">Leave empty to keep current image</small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label asp-for="PdfFile" class="form-label fw-bold">New PDF File</label>
+                                            <input asp-for="PdfFile" type="file" class="form-control" accept=".pdf" />
+                                            <small class="text-primary fs-6">Leave empty to keep current PDF</small>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(Model.PdfFileUrl))
+                                        {
+                                            <div class="mb-3">
+                                                <a href="@Model.PdfFileUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-file-pdf me-1"></i>View Current PDF
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>Update Book
+                                    </button>
+                                    <a asp-action="Index" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@Model.BookId" class="btn btn-info">
+                                        <i class="fas fa-eye me-2"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
