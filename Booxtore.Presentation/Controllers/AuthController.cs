@@ -48,6 +48,16 @@ public class AuthController : Controller
 
         if (result.Succeeded)
         {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                {
+                    return Redirect(model.ReturnUrl);
+                }
+                return RedirectToAction("Index", "Admin");
+            }
+            
             return RedirectToLocal(model.ReturnUrl);
         }
 

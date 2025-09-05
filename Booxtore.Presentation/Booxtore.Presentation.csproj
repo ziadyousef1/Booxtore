@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Booxtore.Application\Booxtore.Application.csproj" />
     <ProjectReference Include="..\Booxtore.Infrastructure\Booxtore.Infrastructure.csproj" />
   </ItemGroup>
 

@@ -119,7 +119,7 @@
                                         {
                                             <div class="mb-3 text-center">
                                                 <img src="@Model.CoverImageUrl" alt="Current Cover" class="img-thumbnail" width="150" />
-                                                <p class="small text-primary fs-6 mt-1">Current Cover Image</p>
+                                                <p class="small text-secondary fs-6 mt-1">Current Cover Image</p>
                                             </div>
                                         }
 
@@ -150,13 +150,14 @@
                                         <div class="mb-3">
                                             <label asp-for="CoverImage" class="form-label fw-bold">New Cover Image</label>
                                             <input asp-for="CoverImage" type="file" class="form-control" accept="image/*" />
-                                            <small class="text-primary fs-6">Leave empty to keep current image</small>
+                                            <small class="text-secondary fs-6">Leave empty to keep current image</small>
                                         </div>
 
                                         <div class="mb-3">
                                             <label asp-for="PdfFile" class="form-label fw-bold">New PDF File</label>
                                             <input asp-for="PdfFile" type="file" class="form-control" accept=".pdf" />
-                                            <small class="text-primary fs-6">Leave empty to keep current PDF</small>
+                                            <small class="text-secondary fs-6">Leave empty to keep current PDF</small>
+                                            <small class="text-secondary fs-6">Leave empty to keep current PDF</small>
                                         </div>
 
                                         @if (!string.IsNullOrEmpty(Model.PdfFileUrl))

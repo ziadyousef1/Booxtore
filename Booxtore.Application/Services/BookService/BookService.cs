@@ -85,12 +85,13 @@ namespace Booxtore.Application.Services.BookService
             return await _bookRepository.DeleteAsync(id);
         }
 
-        
         public async Task<int> GetTotalBooksCountAsync()
         {
             var books = await _bookRepository.GetAllAsync();
             return books.Count();
-        }        public async Task<int> GetAvailableBooksCountAsync()
+        }
+
+        public async Task<int> GetAvailableBooksCountAsync()
         {
             var books = await _bookRepository.GetAllAsync();
             return books.Count(b => b.Status == "Available");
