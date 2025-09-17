@@ -251,7 +251,7 @@
                 const borrowingId = $(this).data('borrowing-id');
                 const button = $(this);
                 
-                if (confirm('Are you sure you want to return this book?')) {
+               
                     button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Returning...');
                     
                     $.post('@Url.Action("Return", "Library")', { borrowingRecordId: borrowingId })
@@ -268,7 +268,7 @@
                             showErrorToast('An error occurred while returning the book.', 'Connection Error');
                             button.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Return');
                         });
-                }
+                
             });
 
             // Handle renew button click

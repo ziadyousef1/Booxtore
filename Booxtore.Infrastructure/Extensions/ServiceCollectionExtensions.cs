@@ -39,6 +39,7 @@ namespace Booxtore.Infrastructure.Extensions
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IBorrowingRecordRepository, BorrowingRecordRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             return services;
         }

@@ -1,0 +1,265 @@
+@model Booxtore.Presentation.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cart-animations.css" />
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-primary mb-4">
+                <i class="fas fa-credit-card me-3"></i>Secure Checkout
+            </h2>
+            
+            <div class="progress mb-4">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 75%">
+                    <span class="visually-hidden">75% Complete</span>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mb-4">
+                <span class="badge bg-success">1. Cart</span>
+                <span class="badge bg-success">2. Shipping</span>
+                <span class="badge bg-primary">3. Payment</span>
+                <span class="badge bg-light text-dark">4. Complete</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Billing Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> @Model.User?.FirstName @Model.User?.LastName</p>
+                            <p><strong>Email:</strong> @Model.User?.Email</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Phone:</strong> @(Model.User?.PhoneNumber ?? "Not provided")</p>
+                            <p><strong>Member Since:</strong> @Model.User?.CreatedAt?.ToString("MMMM yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>Payment Method
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You will be redirected to Stripe's secure payment page to complete your purchase.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="payment-method-card selected">
+                                <div class="d-flex align-items-center p-3 border rounded">
+                                    <i class="fab fa-cc-stripe fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Stripe Payment</h6>
+                                        <small class="text-muted">Credit/Debit Card, Apple Pay, Google Pay</small>
+                                    </div>
+                                    <i class="fas fa-check-circle text-success ms-auto"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shield-alt text-success me-2"></i>
+                                <small class="text-muted">
+                                    Your payment information is encrypted and secure. We use Stripe for payment processing.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Items (@Model.Cart.TotalItems)</h6>
+                    
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="flex-grow-1">
+                                <small class="fw-bold">@item.Title</small>
+                                <br>
+                                <small class="text-muted">Qty: @item.Quantity × $@item.Price.ToString("F2")</small>
+                            </div>
+                            <span class="fw-bold">$@item.Total.ToString("F2")</span>
+                        </div>
+                        <hr class="my-2">
+                    }
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>$@Model.TotalAmount.ToString("F2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <span>$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong class="text-primary">$@Model.TotalAmount.ToString("F2")</strong>
+                    </div>
+                    
+                    <form asp-action="CreateOrder" method="post" class="d-grid">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success btn-lg mb-3" id="checkout-button">
+                            <i class="fas fa-lock me-2"></i>Complete Purchase
+                        </button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-undo me-1"></i>
+                            <a asp-controller="Cart" asp-action="Index" class="text-decoration-none">Return to Cart</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Digital Delivery</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-download text-success me-2"></i>
+                        <small>Instant download after payment</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-email text-success me-2"></i>
+                        <small>Receipt sent to your email</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-library text-success me-2"></i>
+                        <small>Added to your library automatically</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            console.log('Checkout page loaded, button found:', $('#checkout-button').length > 0);
+            
+            $('#checkout-button').click(function(e) {
+                console.log('Checkout button clicked');
+                e.preventDefault();
+                
+                var button = $(this);
+                var form = button.closest('form');
+                
+                console.log('Form found:', form.length > 0);
+                console.log('Form action:', form.attr('action'));
+                
+                button.prop('disabled', true);
+                button.addClass('btn-loading');
+                button.html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
+                
+                showProcessingOverlay();
+                
+                setTimeout(function() {
+                    console.log('Submitting form...');
+                    form.submit();
+                }, 500);
+            });
+            
+            function showProcessingOverlay() {
+                var overlay = $(`
+                    <div class="checkout-processing">
+                        <div class="processing-content">
+                            <div class="processing-spinner"></div>
+                            <h4 style="color: #F86D72;">Processing Your Order</h4>
+                            <p class="mb-2">Creating secure payment session...</p>
+                            <small class="text-muted">This usually takes 3-5 seconds</small>
+                        </div>
+                    </div>
+                `);
+                
+                $('body').append(overlay);
+                
+                var progressInterval = setInterval(function() {
+                    progress += 10;
+                    if (progress <= 100) {
+                        $('.processing-content p').html(`Creating secure payment session... ${progress}%`);
+                    }
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                        $('.processing-content p').html('Redirecting to Stripe...');
+                    }
+                }, 300);
+                
+                setTimeout(function() {
+                    $('.checkout-processing').fadeOut();
+                    $('#checkout-button').prop('disabled', false).removeClass('btn-loading');
+                    showError('Payment processing is taking longer than expected. Please try again.');
+                }, 30000);
+            }
+            
+            function showError(message) {
+                var errorAlert = $(`
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `);
+                $('.container').prepend(errorAlert);
+            }
+        });
+    </script>
+}
+
+<style>
+    .payment-method-card.selected {
+        border: 2px solid #28a745 !important;
+    }
+    
+    .progress {
+        height: 8px;
+    }
+    
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+</style>

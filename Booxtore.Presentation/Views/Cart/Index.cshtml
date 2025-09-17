@@ -1,0 +1,330 @@
+@model Booxtore.Presentation.ViewModels.CartViewModel
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-primary mb-4">
+                <i class="fas fa-shopping-cart me-3"></i>Your Shopping Cart
+            </h2>
+        </div>
+    </div>
+
+    @if (Model.Items.Any())
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Cart Items (@Model.TotalItems items)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="cart-item border-bottom p-4" data-book-id="@item.BookId">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                        {
+                                            <img src="@item.CoverImageUrl" alt="@item.Title" class="img-fluid rounded shadow-sm" style="height: 80px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 80px; width: 60px;">
+                                                <i class="fas fa-book text-muted"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h6 class="mb-1 fw-bold">@item.Title</h6>
+                                        <p class="text-muted small mb-0">Digital Book</p>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <span class="fw-bold text-primary">$@item.Price.ToString("F2")</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm">
+                                            <button class="btn btn-outline-secondary btn-quantity-minus" type="button" data-book-id="@item.BookId">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" class="form-control text-center quantity-input" 
+                                                   value="@item.Quantity" min="1" max="10" 
+                                                   data-book-id="@item.BookId" data-current-quantity="@item.Quantity">
+                                            <button class="btn btn-outline-secondary btn-quantity-plus" type="button" data-book-id="@item.BookId">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <span class="fw-bold item-total">$@item.Total.ToString("F2")</span>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <button class="btn btn-outline-danger btn-sm btn-remove-item" data-book-id="@item.BookId" title="Remove from cart">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-outline-danger" id="btn-clear-cart">
+                                <i class="fas fa-trash me-2"></i>Clear Cart
+                            </button>
+                            <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal (@Model.TotalItems items):</span>
+                            <span id="cart-subtotal">$@Model.TotalAmount.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax:</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong class="text-primary" id="cart-total">$@Model.TotalAmount.ToString("F2")</strong>
+                        </div>
+                        
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Checkout" asp-action="Index" class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Auth" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "Checkout")" 
+                               class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login to Checkout
+                            </a>
+                        }
+                        
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Secure checkout with SSL encryption
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Why Choose Digital Books?</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled small">
+                            <li class="mb-2">
+                                <i class="fas fa-download text-success me-2"></i>
+                                Instant download after purchase
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-mobile-alt text-success me-2"></i>
+                                Read on any device
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-search text-success me-2"></i>
+                                Searchable text
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-leaf text-success me-2"></i>
+                                Environmentally friendly
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-shopping-cart fa-5x text-muted"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">Your cart is empty</h3>
+                    <p class="text-muted mb-4">Looks like you haven't added any books to your cart yet.</p>
+                    <a asp-controller="Shop" asp-action="Index" class="btn btn-primary btn-lg">
+                        <i class="fas fa-book me-2"></i>Start Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cart-animations.css" />
+}
+
+@section Scripts {
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        $(document).ready(function() {
+            // Update quantity
+            $('.btn-quantity-plus, .btn-quantity-minus').click(function() {
+                var bookId = $(this).data('book-id');
+                var input = $(`.quantity-input[data-book-id="${bookId}"]`);
+                var currentValue = parseInt(input.val());
+                var newValue = $(this).hasClass('btn-quantity-plus') ? currentValue + 1 : currentValue - 1;
+                
+                if (newValue >= 1 && newValue <= 10) {
+                    updateQuantity(bookId, newValue);
+                }
+            });
+
+            $('.quantity-input').on('change blur', function() {
+                var bookId = $(this).data('book-id');
+                var quantity = parseInt($(this).val());
+                var currentQuantity = parseInt($(this).attr('data-current-quantity') || $(this).val());
+                
+                if (quantity >= 1 && quantity <= 10 && quantity !== currentQuantity) {
+                    $(this).attr('data-current-quantity', quantity);
+                    updateQuantity(bookId, quantity);
+                } else if (quantity < 1 || quantity > 10) {
+                    $(this).val(currentQuantity || 1);
+                    showToast('Warning', 'Quantity must be between 1 and 10', 'warning');
+                }
+            });
+
+            // Remove item
+            $('.btn-remove-item').click(function() {
+                var bookId = $(this).data('book-id');
+                removeFromCart(bookId);
+            });
+
+            // Clear cart
+            $('#btn-clear-cart').click(function() {
+                if (confirm('Are you sure you want to clear your cart?')) {
+                    clearCart();
+                }
+            });
+
+            function updateQuantity(bookId, quantity) {
+                // Show loading state
+                $(`.btn-quantity-plus[data-book-id="${bookId}"], .btn-quantity-minus[data-book-id="${bookId}"]`).prop('disabled', true);
+                
+                $.post('@Url.Action("UpdateQuantity", "Cart")', {
+                    bookId: bookId,
+                    quantity: quantity
+                }, function(response) {
+                    if (response.success) {
+                        // Update the input value
+                        $(`.quantity-input[data-book-id="${bookId}"]`).val(quantity);
+                        // Update the item total
+                        $(`.cart-item[data-book-id="${bookId}"] .item-total`).text('$' + response.itemTotal.toFixed(2));
+                        // Update cart totals
+                        $('#cart-subtotal, #cart-total').text('$' + response.cartTotal.toFixed(2));
+                        // Update cart count in navbar
+                        updateCartCount(response.cartCount);
+                        // Add visual feedback
+                        $('#cart-total').addClass('cart-total updated');
+                        setTimeout(() => $('#cart-total').removeClass('updated'), 1000);
+                    } else {
+                        showToast('Error', response.message || 'Failed to update quantity', 'danger');
+                    }
+                }).fail(function() {
+                    showToast('Error', 'Failed to update quantity', 'danger');
+                }).always(function() {
+                    // Re-enable buttons
+                    $(`.btn-quantity-plus[data-book-id="${bookId}"], .btn-quantity-minus[data-book-id="${bookId}"]`).prop('disabled', false);
+                });
+            }
+
+            function removeFromCart(bookId) {
+                $.post('@Url.Action("RemoveFromCart", "Cart")', {
+                    bookId: bookId
+                }, function(response) {
+                    if (response.success) {
+                        $(`.cart-item[data-book-id="${bookId}"]`).fadeOut(function() {
+                            $(this).remove();
+                            if (response.cartCount === 0) {
+                                location.reload();
+                            } else {
+                                $('#cart-subtotal, #cart-total').text('$' + response.cartTotal.toFixed(2));
+                                updateCartCount(response.cartCount);
+                            }
+                        });
+                        showToast('Success', response.message, 'success');
+                    } else {
+                        showToast('Error', response.message || 'Failed to remove item', 'error');
+                    }
+                }).fail(function() {
+                    showToast('Error', 'Failed to remove item', 'error');
+                });
+            }
+
+            function clearCart() {
+                $.post('@Url.Action("ClearCart", "Cart")', function() {
+                    location.reload();
+                });
+            }
+
+            function updateCartCount(count) {
+                // Update the cart badge count in the navbar
+                $('.cart-count').text(count);
+                if (count > 0) {
+                    $('.cart-count').show();
+                } else {
+                    $('.cart-count').hide();
+                }
+            }
+
+            function showToast(title, message, type) {
+                var bgClass = type === 'success' ? 'bg-success' : 
+                             type === 'danger' ? 'bg-danger' : 
+                             type === 'warning' ? 'bg-warning' : 'bg-primary';
+                
+                var toast = $(`
+                    <div class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <strong>${title}:</strong> ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                `);
+                
+                $('#toast-container').append(toast);
+                var bsToast = new bootstrap.Toast(toast[0], {
+                    autohide: true,
+                    delay: 3000
+                });
+                bsToast.show();
+                
+                // Remove toast element after it's hidden
+                toast[0].addEventListener('hidden.bs.toast', function () {
+                    $(this).remove();
+                });
+            }
+        });
+    </script>
+}

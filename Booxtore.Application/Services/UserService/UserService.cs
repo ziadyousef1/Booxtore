@@ -30,7 +30,6 @@ public class UserService : IUserService
 
     public async Task<ApplicationUser> UpdateUserAsync(ApplicationUser user)
     {
-        // Add business logic validation here
         if (string.IsNullOrWhiteSpace(user.FirstName))
             throw new ArgumentException("First name is required.");
 

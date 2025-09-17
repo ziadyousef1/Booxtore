@@ -16,7 +16,6 @@ namespace Booxtore.Application.Interfaces.Services
         Task<Book> UpdateBookAsync(Book book);
         Task<bool> DeleteBookAsync(int id);
         
-        // Admin specific methods
         Task<int> GetTotalBooksCountAsync();
         Task<int> GetAvailableBooksCountAsync();
         Task<int> GetBorrowedBooksCountAsync();

@@ -67,6 +67,25 @@
                         }
                     </div>
 
+                    <!-- Action Buttons Section -->
+                    <div class="action-buttons-section mb-4">
+                      
+                       
+                            <!-- Paid Book - Show Add to Cart with Quantity -->
+                            @if (Model.Book.IsAvailableForPurchase == true && Model.Book.IsFree != true)
+                            {
+                              
+                                @if (Model.Book.AvailableCopies.HasValue && Model.Book.AvailableCopies <= 5)
+                                {
+                                    <div class="alert alert-warning mt-3 mb-0">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Only @Model.Book.AvailableCopies copies left in stock!
+                                    </div>
+                                }
+                            }
+                                                   
+                    </div>
+
                     @if (!string.IsNullOrEmpty(Model.Book.Description))
                     {
                         <div class="description-card card mb-4">
@@ -164,19 +183,13 @@
                                     }
                                     else
                                     {
-                                        @if (!string.IsNullOrEmpty(Model.Book.PdfFileUrl))
-                                        {
-                                            <a href="@Url.Action("Read", new { id = Model.Book.BookId })" 
-                                               class="btn btn-success btn-lg action-btn">
-                                                <i class="fas fa-book-open me-2"></i> Read Now - FREE
-                                            </a>
-                                        }
+                                       
                                         
                                         @if (Model.Book.IsAvailableForBorrow == true && Model.Book.AvailableCopies > 0)
                                         {
                                             <button type="button" class="btn btn-outline-primary btn-lg action-btn borrow-book-btn" 
                                                     data-book-id="@Model.Book.BookId">
-                                                <i class="fas fa-book-reader me-2"></i> Borrow Physical Copy
+                                                <i class="fas fa-book-reader me-2"></i> Borrow For Reading
                                             </button>
                                         }
                                     }
@@ -208,28 +221,23 @@
                                         <div class="row g-2">
                                             @if (Model.Book.IsAvailableForPurchase == true)
                                             {
-                                                <div class="col-6">
-                                                    <button type="button" class="btn btn-primary w-100 action-btn add-to-cart-btn" 
-                                                            data-book-id="@Model.Book.BookId">
-                                                        <i class="fas fa-shopping-cart me-1"></i> Buy Now
-                                                    </button>
-                                                </div>
+
+
+                                                  <button type="button" class="btn btn-outline-secondary action-btn add-to-cart-btn" 
+                                                        data-book-id="@Model.Book.BookId">
+                                                   <i class="fas fa-shopping-cart me-1"></i>  Add to Cart
+                                                </button>
+
+                                                  <button type="button" class="btn btn-outline-secondary action-btn buy-now-btn" 
+                                                        data-book-id="@Model.Book.BookId">
+                                                   <i class="fas fa-money-bill-wave"></i> Buy Now
+                                                </button>
+                                              
+                                              
                                             }
-                                            @if (Model.Book.IsAvailableForBorrow == true && Model.Book.AvailableCopies > 0)
-                                            {
-                                                <div class="col-6">
-                                                    <button type="button" class="btn btn-outline-primary w-100 action-btn borrow-book-btn" 
-                                                            data-book-id="@Model.Book.BookId">
-                                                        <i class="fas fa-book-reader me-1"></i> Borrow
-                                                    </button>
-                                                </div>
-                                            }
+                                          
                                         </div>
                                         
-                                        <button type="button" class="btn btn-outline-secondary action-btn add-to-wishlist-btn" 
-                                                data-book-id="@Model.Book.BookId">
-                                            <i class="fas fa-heart me-2"></i> Add to Wishlist
-                                        </button>
                                     }
                                 }
                             </div>
@@ -284,9 +292,88 @@
 
 @section Scripts {
     <script>
+        // Check if book is already in cart when page loads
+        $(document).ready(function() {
+            var bookId = '@Model.Book.BookId';
+            checkIfBookInCart(bookId);
+        });
+
+        function checkIfBookInCart(bookId) {
+            $.get('@Url.Action("IsBookInCart", "Cart")', { bookId: bookId })
+                .done(function(response) {
+                    if (response.success && response.isInCart) {
+                        updateAddToCartButton(true);
+                    }
+                })
+                .fail(function() {
+                    // If check fails, assume not in cart
+                    updateAddToCartButton(false);
+                });
+        }
+
+        function updateAddToCartButton(isInCart) {
+            var addToCartBtn = $('.add-to-cart-btn');
+            
+            if (isInCart) {
+                addToCartBtn
+                    .prop('disabled', true)
+                    .removeClass('btn-outline-secondary')
+                    .addClass('btn-success')
+                    .html('<i class="fas fa-check me-1"></i> In Cart')
+                    .off('click'); // Remove click handler
+            } else {
+                addToCartBtn
+                    .prop('disabled', false)
+                    .removeClass('btn-success')
+                    .addClass('btn-outline-secondary')
+                    .html('<i class="fas fa-shopping-cart me-1"></i> Add to Cart');
+            }
+        }
+
         $('.add-to-cart-btn').click(function() {
             var bookId = $(this).data('book-id');
-            showInfoToast('Add to cart functionality will be implemented soon!', 'Coming Soon');
+            var btn = $(this);
+            
+            // Disable button to prevent multiple clicks
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin me-1"></i> Adding...');
+            
+            $.post('@Url.Action("AddToCart", "Cart")', { 
+                bookId: bookId, 
+                quantity: 1 
+            })
+            .done(function(response) {
+                if (response.success) {
+                    showSuccessToast(response.message, 'Added to Cart!');
+                    
+                    // Update button to show it's now in cart
+                    updateAddToCartButton(true);
+                    
+                    // Update cart count in navigation if exists
+                    var cartCountElement = $('.cart-count');
+                    if (cartCountElement.length > 0 && response.cartCount) {
+                        cartCountElement.text(response.cartCount);
+                        cartCountElement.show();
+                    }
+                } else {
+                    showErrorToast(response.message, 'Error');
+                    // Re-enable button on error
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-shopping-cart me-1"></i> Add to Cart');
+                }
+            })
+            .fail(function() {
+                showErrorToast('An error occurred. Please try again.', 'Connection Error');
+                // Re-enable button on error
+                btn.prop('disabled', false);
+                btn.html('<i class="fas fa-shopping-cart me-1"></i> Add to Cart');
+            });
+        });
+
+        // Buy Now functionality - redirect directly to cart
+        $('.buy-now-btn').click(function() {
+            // Redirect directly to cart page
+            window.location.href = '@Url.Action("Index", "Cart")';
         });
 
         $('.borrow-book-btn').click(function() {
@@ -335,5 +422,110 @@
             // TODO: Implement wishlist functionality
             showInfoToast('Add to wishlist functionality will be implemented soon!', 'Coming Soon');
         });
+
+        // Quantity controls with improved responsiveness
+        window.increaseQuantity = function() {
+            var quantityInput = document.getElementById('quantity');
+            var currentValue = parseInt(quantityInput.value);
+            var maxValue = parseInt(quantityInput.max);
+            
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+                // Add visual feedback
+                $(quantityInput).addClass('quantity-updated');
+                setTimeout(() => $(quantityInput).removeClass('quantity-updated'), 200);
+            } else {
+                // Show feedback when max reached
+                showInfoToast(`Maximum ${maxValue} items allowed`, 'Limit Reached');
+            }
+        };
+
+        window.decreaseQuantity = function() {
+            var quantityInput = document.getElementById('quantity');
+            var currentValue = parseInt(quantityInput.value);
+            
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+                // Add visual feedback
+                $(quantityInput).addClass('quantity-updated');
+                setTimeout(() => $(quantityInput).removeClass('quantity-updated'), 200);
+            } else {
+                // Show feedback when min reached
+                showInfoToast('Minimum 1 item required', 'Minimum Reached');
+            }
+        };
+
+        // Add to cart functionality
+        window.addToCart = function(bookId) {
+            var quantity = parseInt(document.getElementById('quantity').value);
+            
+            $.post('@Url.Action("AddToCart", "Cart")', { 
+                bookId: bookId, 
+                quantity: quantity 
+            })
+            .done(function(response) {
+                if (response.success) {
+                    showSuccessToast(response.message, 'Added to Cart!');
+                    
+                    // Update cart count in navigation if exists
+                    var cartCountElement = $('.cart-count');
+                    if (cartCountElement.length > 0 && response.cartCount) {
+                        cartCountElement.text(response.cartCount);
+                        cartCountElement.show();
+                    }
+                    
+                    // Reset quantity to 1
+                    document.getElementById('quantity').value = 1;
+                } else {
+                    showErrorToast(response.message, 'Error');
+                }
+            })
+            .fail(function() {
+                showErrorToast('An error occurred. Please try again.', 'Connection Error');
+            });
+        };
+
+        // Toast notification functions
+        function showSuccessToast(message, title = 'Success') {
+            showToast(title, message, 'success');
+        }
+
+        function showErrorToast(message, title = 'Error') {
+            showToast(title, message, 'danger');
+        }
+
+        function showInfoToast(message, title = 'Info') {
+            showToast(title, message, 'info');
+        }
+
+        function showToast(title, message, type) {
+            var toastId = 'toast-' + Date.now();
+            var toast = $(`
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <strong>${title}:</strong> ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `);
+            
+            // Create toast container if it doesn't exist
+            if ($('#toast-container').length === 0) {
+                $('body').append('<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060;"></div>');
+            }
+            
+            $('#toast-container').append(toast);
+            
+            // Initialize and show the toast
+            var bsToast = new bootstrap.Toast(toast[0]);
+            bsToast.show();
+            
+            // Remove toast element after it's hidden
+            toast.on('hidden.bs.toast', function() {
+                $(this).remove();
+            });
+        }
     </script>
 }

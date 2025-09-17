@@ -63,6 +63,14 @@
                 </div>
             }
         </li>
+        <li class="cart-item pe-3">
+            <a href="@Url.Action("Index", "Cart")" class="position-relative text-decoration-none">
+                <svg class="cart">
+                    <use xlink:href="#cart"></use>
+                </svg>
+                <span class="cart-count badge bg-primary position-absolute top-0 start-100 translate-middle" style="display: none;">0</span>
+            </a>
+        </li>
         <li class="wishlist-dropdown dropdown pe-3">
             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                 <svg class="wishlist">
@@ -83,30 +91,6 @@
                 </ul>
                 <div class="d-flex justify-content-between">
                     <a asp-controller="Wishlist" asp-action="Index" class="btn btn-primary">View Wishlist</a>
-                </div>
-            </div>
-        </li>
-        <li class="cart-dropdown dropdown">
-            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                <svg class="cart">
-                    <use xlink:href="#cart"></use>
-                </svg>
-                <span class="fs-6 fw-light">(0)</span>
-            </a>
-            <div class="dropdown-menu animate slide dropdown-menu-start dropdown-menu-lg-end p-3">
-                <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-primary">Your cart</span>
-                    <span class="badge bg-primary rounded-pill">0</span>
-                </h4>
-                <ul class="list-group mb-3">
-                    <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                        <div>
-                            <p class="text-muted">Your cart is empty</p>
-                        </div>
-                    </li>
-                </ul>
-                <div class="d-flex justify-content-between">
-                    <a asp-controller="Cart" asp-action="Index" class="btn btn-primary">View Cart</a>
                 </div>
             </div>
         </li>
